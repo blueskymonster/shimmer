@@ -16,7 +16,8 @@ int update_rate = 1;
 int remembered_frames = 2;
 ArrayList video_diffs = new ArrayList();
 float brightness_threshold = 10.0;
-boolean freeze_bg = false;
+boolean record_loop = false;
+ArrayList bg_loop = new ArrayList();
 
 // Sound stuff
 Minim minim;
@@ -37,13 +38,19 @@ void setup() {
   
   minim = new Minim(this);
   sound_in = minim.getLineIn(Minim.MONO);
-  file_player = minim.loadFile("/home/elliot/Dropbox/Music/Bleep Bloop - Feel the Cosmos (MP3)/Bleep Bloop - Bleep Bloop - Feel The Cosmos (STRTEP028) - 02 Bats.mp3");
+  file_player = minim.loadFile("/home/elliot/Dropbox/Music/Bleep Bloop - Feel the Cosmos (MP3)/Bleep Bloop - Bleep Bloop - Feel The Cosmos (STRTEP028) - 01 Something Impossible.mp3");
   file_player.play();
 }
 
 void save_current_difference() {
   video.read(); // Get a video frame
   video.loadPixels(); // Make the video.pixels array available
+  if (record_loop) {
+    PImage current_frame = createImage(video.width, video.height, RGB);
+    arraycopy(video.pixels, current_frame.pixels);
+    current_frame.updatePixels();
+    bg_loop.add(current_frame);
+  }
   PImage current_diff = createImage(video.width, video.height, RGB);
   current_diff.loadPixels();
   for (int pixel = 0; pixel < pixel_count; pixel++) {
@@ -136,17 +143,26 @@ void draw() {
     
     draw_explosion(laggy_diff);
 
-    if (frame_count % update_rate == 0 && !freeze_bg) {
-      arraycopy(video.pixels, background_pixels);
+    if (frame_count % update_rate == 0 && !record_loop) {
+      if (bg_loop.size() == 0) {
+        arraycopy(video.pixels, background_pixels);
+      } else {
+        int loop_length = bg_loop.size();
+        int loop_idx = abs((frame_count % (2 * loop_length - 1)) - (loop_length - 1));
+        PImage bg_frame = (PImage)bg_loop.get(loop_idx);
+        arraycopy(bg_frame.pixels, background_pixels);
+      }
     }
     frame_count++;
   }
 }
 
 void keyPressed() {
-  freeze_bg = !freeze_bg;
+  if (!record_loop) {
+    bg_loop.clear();
+  }
+  record_loop = !record_loop;
 }
-
 
 
 
