@@ -11,17 +11,17 @@ import processing.video.*;
 int pixel_count;
 int[] background_pixels;
 Capture video;
-PImage current_frame;
 int frame_count;
 int update_rate = 1;
-int remembered_frames = 8;
+int remembered_frames = 2;
 ArrayList video_diffs = new ArrayList();
 float brightness_threshold = 10.0;
-boolean use_post_processing = true;
+boolean freeze_bg = false;
 
 // Sound stuff
 Minim minim;
 AudioInput sound_in;
+AudioPlayer file_player;
 float eased_loudness = 0.0;
 float easing = 0.5;
 
@@ -37,15 +37,13 @@ void setup() {
   
   minim = new Minim(this);
   sound_in = minim.getLineIn(Minim.MONO);
+  file_player = minim.loadFile("/home/elliot/Dropbox/Music/Bleep Bloop - Feel the Cosmos (MP3)/Bleep Bloop - Bleep Bloop - Feel The Cosmos (STRTEP028) - 02 Bats.mp3");
+  file_player.play();
 }
 
 void save_current_difference() {
   video.read(); // Get a video frame
   video.loadPixels(); // Make the video.pixels array available
-  current_frame = createImage(video.width, video.height, RGB);
-  current_frame.loadPixels();
-  arraycopy(video.pixels, current_frame.pixels);
-  current_frame.updatePixels();
   PImage current_diff = createImage(video.width, video.height, RGB);
   current_diff.loadPixels();
   for (int pixel = 0; pixel < pixel_count; pixel++) {
@@ -85,9 +83,11 @@ void draw_explosion(PImage img) {
   int x_border = (width - img.width) / 2;
   int y_border = (height - img.height) / 2;
   
-  float current_loudness = sound_in.mix.level();
+  float current_loudness = file_player.mix.level();
   float loudness_delta = current_loudness - eased_loudness;
   eased_loudness += loudness_delta * easing;
+  int rotation_speed = 20;
+  float rotation = PI/3.0 * sin( float((frame_count % rotation_speed) - (rotation_speed / 2)) / float(rotation_speed)); 
   for (int col = 0; col < columns; col++) {
     for (int row = 0; row < rows; row++) {
       int x = col*cellsize;
@@ -95,11 +95,10 @@ void draw_explosion(PImage img) {
       int loc = x + (y * img.width);
       color c = img.pixels[loc];
       
-      float z = 3.0 * eased_loudness * brightness(img.pixels[loc]) - 20.0;
-      float rotation = PI/3.0 * ((float(width / 2) - float(mouseX)) / float(width));
+      float z = 5.0 * current_loudness * brightness(img.pixels[loc]) - 20.0;
       pushMatrix();
       //rotateY(rotation);
-      translate(x + 300, y + 200, z + 50);
+      translate(x + 300, y + 200, z + 200);
       //rotateY(-rotation);
       fill(c, 204);
       noStroke();
@@ -137,7 +136,7 @@ void draw() {
     
     draw_explosion(laggy_diff);
 
-    if (frame_count % update_rate == 0) {
+    if (frame_count % update_rate == 0 && !freeze_bg) {
       arraycopy(video.pixels, background_pixels);
     }
     frame_count++;
@@ -145,7 +144,7 @@ void draw() {
 }
 
 void keyPressed() {
-  
+  freeze_bg = !freeze_bg;
 }
 
 
