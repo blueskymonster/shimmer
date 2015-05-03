@@ -26,9 +26,10 @@ float eased_loudness = 0.0;  // Current "eased loudness". Do not alter manually.
 float easing = 1.0;  // 1.0 = instant. smaller values slowly move towards the current loudness
 
 // 3D stuff
-int cellsize = 4;  // Base size of color shape
-float x_rotation_factor = 0.005;  // How quickly to rotate in x direction
+int cellsize = 6;  // Base size of color shape
+float x_rotation_factor = 0.0;//05;  // How quickly to rotate in x direction
 float x_rotation_limit = PI / 15.0; // How far to rotate in either x direction
-float y_rotation_factor = 0.016;  // How quickly to rotate in y direction
+float y_rotation_factor = 0.0;//16;  // How quickly to rotate in y direction
 float y_rotation_limit = PI / 12.0; // How far to rotate in either y direction
 float z_scaling = 0.003;
+CellShape cell_shape = CellShape.RECTANGLE;

@@ -19,12 +19,13 @@ void recordButtonPressed() {
   record_loop = !record_loop;
 }
 
-void handleOtherKeys() {
-  if (key >= '0' && key <= '9') {
-    int number = Character.getNumericValue(key);
-    if (number < camera_list.size()) {
-      video = (Capture)camera_list.get(number);
-    }
+void changeCellShape() {
+  if (cell_shape == CellShape.CIRCLE) {
+    cellsize = max(1, cellsize - 2);
+    cell_shape = CellShape.RECTANGLE;
+  } else {
+    cellsize += 2;
+    cell_shape = CellShape.CIRCLE;
   }
 }
 
@@ -38,11 +39,22 @@ void handleCodedKeys() {
   }
 }
 
+void handleOtherKeys() {
+  if (key >= '0' && key <= '9') {
+    int number = Character.getNumericValue(key);
+    if (number < camera_list.size()) {
+      video = (Capture)camera_list.get(number);
+    }
+  }
+}
+
 void keyPressed() {
   switch (key) {
     case ' ': recordButtonPressed();
               break;
-    case 's': toggleSoundMonitoring();
+    case 'm': toggleSoundMonitoring();
+              break;
+    case 's': changeCellShape();
               break;
     case CODED: handleCodedKeys();
                 break;

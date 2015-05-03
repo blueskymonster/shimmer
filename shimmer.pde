@@ -120,7 +120,7 @@ void draw_explosion(PImage img) {
           int loc = x + (y * img.width);
           color c = img.pixels[loc];
           float z = 5.0 * current_loudness * brightness(img.pixels[loc]);
-          float circle_size = float(cellsize) * max(1.0, z * z_scaling);
+          float shape_size = float(cellsize) * max(1.0, z * z_scaling);
           pushMatrix();
             translate(x, y, z);
             pushMatrix();
@@ -128,7 +128,12 @@ void draw_explosion(PImage img) {
               rotateX(-x_rotation);
               fill(c, 255);
               noStroke();
-              ellipse(0, 0, circle_size, circle_size);
+              if (cell_shape == CellShape.CIRCLE) {
+                ellipse(0, 0, shape_size, shape_size);
+              } else if (cell_shape == CellShape.RECTANGLE) {
+                rectMode(CENTER);
+                rect(0, 0, shape_size, shape_size);
+              }
             popMatrix();  
           popMatrix();
         } 
