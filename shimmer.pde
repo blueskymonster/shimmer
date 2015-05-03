@@ -171,7 +171,7 @@ void draw() {
     save_current_difference();  
     draw_explosion(create_laggy_diff());
     update_bg_frame();
-    recordOutput();
+    bufferRecording();
   }
 }
 

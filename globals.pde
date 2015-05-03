@@ -11,8 +11,11 @@ ArrayList video_diffs = new ArrayList();  // Where the remembered frames are sto
 float brightness_threshold = 10.0;  // Brightness threshold used when stacking frames.
 
 // Video recording
+import java.text.SimpleDateFormat;
+SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 boolean recording = false;
 String recording_folder = "";
+ArrayList recording_buffer = new ArrayList();  // recorded video is buffered here before writing to disk
 
 // Video loop data
 boolean record_loop = false;  // Are we currently recording a loop?

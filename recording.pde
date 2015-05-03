@@ -1,17 +1,27 @@
 import java.util.Date;
-import java.text.SimpleDateFormat;
 
-void recordOutput() {
+void bufferRecording() {
   if (recording) {
-    saveFrame("/frame-######.png");
+    loadPixels();
+    PImage current_frame = createImage(width, height, RGB);
+    current_frame.loadPixels();
+    arraycopy(pixels, current_frame.pixels);
+    current_frame.updatePixels();
+    recording_buffer.add(current_frame);
   }
 }
 
 void toggleRecording() {
   if (!recording) {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     Date now = new Date();
-    recording_folder = dataPath(sdfDate.format(now));
+    recording_folder = dataPath(date_format.format(now));
+  } else {
+    int frame_number = 0;
+    while (recording_buffer.size() > 0) {
+      PImage frame_to_save = (PImage)recording_buffer.remove(0);
+      frame_to_save.save(recording_folder + String.format("/frame-%06d.jpg", frame_number));
+      frame_number++;
+    }
   }
   recording = !recording;
 }
