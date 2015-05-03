@@ -23,4 +23,4 @@ AudioInput sound_in;
 AudioPlayer file_player;
 float loudness_boost = 5.0;  // Boosts the pixel's z-responsiveness to the sound level
 float eased_loudness = 0.0;  // Current "eased loudness". Do not alter manually.
-float easing = 0.5;  // 0.0 = instant. larger values slowly move towards the current loudness
+float easing = 1.0;  // 1.0 = instant. smaller values slowly move towards the current loudness

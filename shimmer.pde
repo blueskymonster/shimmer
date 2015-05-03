@@ -160,13 +160,19 @@ void draw() {
   if (video.available()) {
     save_current_difference();
     
-    PImage laggy_diff = create_laggy_diff(); 
-    
     draw_explosion(create_laggy_diff());
 
     update_bg_frame();
     
     frame_count++;
+  }
+}
+
+void toggleSoundMonitoring() {
+  if (sound_in.isMonitoring()) {
+    sound_in.disableMonitoring();
+  } else {
+    sound_in.enableMonitoring();
   }
 }
 
@@ -187,6 +193,8 @@ void keyPressed() {
     if (number < camera_list.size()) {
       video = (Capture)camera_list.get(number);
     }
+  } else if (key == 's') {
+    toggleSoundMonitoring();
   }
 }
 
