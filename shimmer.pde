@@ -98,10 +98,9 @@ PImage create_laggy_diff() {
 
 void draw_explosion(PImage img) {
   background(0);
-  int cellsize = 5;
+  
   int columns = img.width / cellsize;
   int rows = img.height / cellsize;
-  
   float current_loudness = loudness_boost * sound_in.mix.level();
   float loudness_delta = current_loudness - eased_loudness;
   eased_loudness += loudness_delta * easing;
@@ -121,6 +120,7 @@ void draw_explosion(PImage img) {
           int loc = x + (y * img.width);
           color c = img.pixels[loc];
           float z = 5.0 * current_loudness * brightness(img.pixels[loc]);
+          float circle_size = float(cellsize) * max(1.0, z * z_scaling);
           pushMatrix();
             translate(x, y, z);
             pushMatrix();
@@ -128,8 +128,6 @@ void draw_explosion(PImage img) {
               rotateX(-x_rotation);
               fill(c, 255);
               noStroke();
-              //rectMode(CENTER);
-              float circle_size = float(cellsize) * max(1.0, z * z_scaling);
               ellipse(0, 0, circle_size, circle_size);
             popMatrix();  
           popMatrix();
@@ -137,17 +135,6 @@ void draw_explosion(PImage img) {
       }
     popMatrix();
   popMatrix();
-  
-  pushMatrix();
-  translate(300, 200, 0);
-  pushMatrix();
-  translate(0, 0, 200);
-  fill(color(0, 255, 0), 204);
-  noStroke();
-  ellipse(0, 0, cellsize, cellsize);
-  popMatrix();
-  popMatrix();
-  
 }
 
 void record_bg_loop() {
@@ -195,25 +182,47 @@ void toggleSoundMonitoring() {
   }
 }
 
-void keyPressed() {
-  if (key == ' ') {
-    if (!record_loop) {
-      if (using_bg_loop1) {
-        bg_loop2.clear();
-      } else {
-        bg_loop1.clear();
-      }
+void recordButtonPressed() {
+  if (!record_loop) {
+    if (using_bg_loop1) {
+      bg_loop2.clear();
     } else {
-      using_bg_loop1 = !using_bg_loop1;
+      bg_loop1.clear();
     }
-    record_loop = !record_loop;
-  } else if (key >= '0' && key <= '9') {
+  } else {
+    using_bg_loop1 = !using_bg_loop1;
+  }
+  record_loop = !record_loop;
+}
+
+void handleOtherKeys() {
+  if (key >= '0' && key <= '9') {
     int number = Character.getNumericValue(key);
     if (number < camera_list.size()) {
       video = (Capture)camera_list.get(number);
     }
-  } else if (key == 's') {
-    toggleSoundMonitoring();
+  }
+}
+
+void handleCodedKeys() {
+  if (keyCode == UP) {
+    cellsize += 1;
+  } else if (keyCode == DOWN) {
+    if (cellsize > 1) {
+      cellsize -= 1;
+    }
+  }
+}
+
+void keyPressed() {
+  switch (key) {
+    case ' ': recordButtonPressed();
+              break;
+    case 's': toggleSoundMonitoring();
+              break;
+    case CODED: handleCodedKeys();
+                break;
+    default: handleOtherKeys();
   }
 }
 
