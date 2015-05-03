@@ -10,12 +10,15 @@ int remembered_frames = 2;  // How long a buffer to maintain for stacking subtra
 ArrayList video_diffs = new ArrayList();  // Where the remembered frames are stored
 float brightness_threshold = 10.0;  // Brightness threshold used when stacking frames.
 
+// Video recording
+boolean recording = false;
+String recording_folder = "";
+
 // Video loop data
 boolean record_loop = false;  // Are we currently recording a loop?
 boolean using_bg_loop1 = false;  // Which bg_loop are we currently displaying?
 ArrayList bg_loop1 = new ArrayList();
 ArrayList bg_loop2 = new ArrayList();
-
 
 // Sound stuff
 Minim minim;

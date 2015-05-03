@@ -54,6 +54,8 @@ void keyPressed() {
               break;
     case 'm': toggleSoundMonitoring();
               break;
+    case 'r': toggleRecording();
+              break;
     case 's': changeCellShape();
               break;
     case CODED: handleCodedKeys();

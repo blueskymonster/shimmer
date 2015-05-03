@@ -21,7 +21,6 @@ void setup() {
   
   VIDEO_PIXEL_COUNT = video.width * video.height;
   background_pixels = new int[VIDEO_PIXEL_COUNT];
-  frame_count = 0;
   
   minim = new Minim(this);
   sound_in = minim.getLineIn(Minim.STEREO);
@@ -104,8 +103,8 @@ void draw_explosion(PImage img) {
   float current_loudness = loudness_boost * sound_in.mix.level();
   float loudness_delta = current_loudness - eased_loudness;
   eased_loudness += loudness_delta * easing;
-  float x_rotation = x_rotation_limit * sin(float(frame_count) * x_rotation_factor);
-  float y_rotation = y_rotation_limit * sin(float(frame_count) * y_rotation_factor);
+  float x_rotation = x_rotation_limit * sin(float(frameCount) * x_rotation_factor);
+  float y_rotation = y_rotation_limit * sin(float(frameCount) * y_rotation_factor);
 
   pushMatrix();
     translate((img.width / 2) + 300, (img.height / 2) + 200, 200);
@@ -143,7 +142,7 @@ void draw_explosion(PImage img) {
 }
 
 void record_bg_loop() {
-  if (record_loop && frame_count % update_rate == 0) {
+  if (record_loop && frameCount % update_rate == 0) {
     PImage current_frame = createImage(video.width, video.height, RGB);
     arraycopy(video.pixels, current_frame.pixels);
     current_frame.updatePixels();
@@ -160,7 +159,7 @@ void update_bg_frame() {
     arraycopy(video.pixels, background_pixels);
   } else {
     int loop_length = get_current_bg_loop().size();
-    int loop_idx = abs((frame_count % (2 * loop_length - 1)) - (loop_length - 1));
+    int loop_idx = abs((frameCount % (2 * loop_length - 1)) - (loop_length - 1));
     
     PImage bg_frame = (PImage)(get_current_bg_loop().get(loop_idx));
     arraycopy(bg_frame.pixels, background_pixels);
@@ -169,13 +168,10 @@ void update_bg_frame() {
 
 void draw() {
   if (video.available()) {
-    save_current_difference();
-    
+    save_current_difference();  
     draw_explosion(create_laggy_diff());
-
     update_bg_frame();
-    
-    frame_count++;
+    recordOutput();
   }
 }
 
