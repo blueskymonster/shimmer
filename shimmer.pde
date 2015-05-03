@@ -10,36 +10,56 @@ import processing.video.*;
 // Video stuff
 int pixel_count;
 int[] background_pixels;
+ArrayList camera_list =  new ArrayList();
+int camera_count = 2;
 Capture video;
 int frame_count;
 int update_rate = 1;
 int remembered_frames = 2;
 ArrayList video_diffs = new ArrayList();
 float brightness_threshold = 10.0;
+
 boolean record_loop = false;
-ArrayList bg_loop = new ArrayList();
+boolean using_bg_loop1 = false;
+ArrayList bg_loop1 = new ArrayList();
+ArrayList bg_loop2 = new ArrayList();
+
 
 // Sound stuff
 Minim minim;
 AudioInput sound_in;
 AudioPlayer file_player;
+float loudness_boost = 20.0;
 float eased_loudness = 0.0;
 float easing = 0.5;
 
 void setup() {
   size(1280, 960, P3D);
   
-  video = new Capture(this, 640, 480);
-  video.start();
+  for (int cam = 0; cam < camera_count; cam++) {
+    Capture camera = new Capture(this, 640, 480, "/dev/video" + str(cam));
+    camera.start();
+    camera_list.add(camera);
+  }
+  
+  video = (Capture)camera_list.get(0);
   
   pixel_count = video.width * video.height;
   background_pixels = new int[pixel_count];
   frame_count = 0;
   
   minim = new Minim(this);
-  sound_in = minim.getLineIn(Minim.MONO);
-  file_player = minim.loadFile("/home/elliot/Dropbox/Music/Bleep Bloop - Feel the Cosmos (MP3)/Bleep Bloop - Bleep Bloop - Feel The Cosmos (STRTEP028) - 01 Something Impossible.mp3");
-  file_player.play();
+  sound_in = minim.getLineIn(Minim.STEREO);
+  //file_player = minim.loadFile("/home/elliot/Dropbox/Music/Bleep Bloop - Feel the Cosmos (MP3)/Bleep Bloop - Bleep Bloop - Feel The Cosmos (STRTEP028) - 01 Something Impossible.mp3");
+  //file_player.play();
+}
+
+ArrayList get_current_bg_loop() {
+  if (using_bg_loop1) {
+    return bg_loop1;
+  } else {
+    return bg_loop2;
+  }
 }
 
 void save_current_difference() {
@@ -49,7 +69,11 @@ void save_current_difference() {
     PImage current_frame = createImage(video.width, video.height, RGB);
     arraycopy(video.pixels, current_frame.pixels);
     current_frame.updatePixels();
-    bg_loop.add(current_frame);
+    if (using_bg_loop1) {
+      bg_loop2.add(current_frame);
+    } else {
+      bg_loop1.add(current_frame);
+    }
   }
   PImage current_diff = createImage(video.width, video.height, RGB);
   current_diff.loadPixels();
@@ -84,13 +108,13 @@ void save_current_difference() {
 
 void draw_explosion(PImage img) {
   background(0);
-  int cellsize = 2;
+  int cellsize = 6;
   int columns = img.width / cellsize;
   int rows = img.height / cellsize;
   int x_border = (width - img.width) / 2;
   int y_border = (height - img.height) / 2;
   
-  float current_loudness = file_player.mix.level();
+  float current_loudness = loudness_boost * sound_in.mix.level();
   float loudness_delta = current_loudness - eased_loudness;
   eased_loudness += loudness_delta * easing;
   int rotation_speed = 20;
@@ -109,8 +133,9 @@ void draw_explosion(PImage img) {
       //rotateY(-rotation);
       fill(c, 204);
       noStroke();
-      rectMode(CENTER);
-      rect(0, 0, cellsize, cellsize);
+      //rectMode(CENTER);
+      float z_scaling = 1000.0;
+      ellipse(0, 0, cellsize + round(z / z_scaling), cellsize + round(z / z_scaling));
       popMatrix();
     } 
   }
@@ -144,12 +169,13 @@ void draw() {
     draw_explosion(laggy_diff);
 
     if (frame_count % update_rate == 0 && !record_loop) {
-      if (bg_loop.size() == 0) {
+      if (get_current_bg_loop().size() == 0) {
         arraycopy(video.pixels, background_pixels);
       } else {
-        int loop_length = bg_loop.size();
+        int loop_length = get_current_bg_loop().size();
         int loop_idx = abs((frame_count % (2 * loop_length - 1)) - (loop_length - 1));
-        PImage bg_frame = (PImage)bg_loop.get(loop_idx);
+        
+        PImage bg_frame = (PImage)(get_current_bg_loop().get(loop_idx));
         arraycopy(bg_frame.pixels, background_pixels);
       }
     }
@@ -158,21 +184,24 @@ void draw() {
 }
 
 void keyPressed() {
-  if (!record_loop) {
-    bg_loop.clear();
+  if (key == ' ') {
+    if (!record_loop) {
+      if (using_bg_loop1) {
+        bg_loop2.clear();
+      } else {
+        bg_loop1.clear();
+      }
+    } else {
+      using_bg_loop1 = !using_bg_loop1;
+    }
+    record_loop = !record_loop;
+  } else if (key >= '0' && key <= '9') {
+    int number = Character.getNumericValue(key);
+    if (number < camera_list.size()) {
+      video = (Capture)camera_list.get(number);
+    }
   }
-  record_loop = !record_loop;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
