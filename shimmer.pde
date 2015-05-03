@@ -40,16 +40,7 @@ ArrayList get_current_bg_loop() {
 void save_current_difference() {
   video.read(); // Get a video frame
   video.loadPixels(); // Make the video.pixels array available
-  if (record_loop) {
-    PImage current_frame = createImage(video.width, video.height, RGB);
-    arraycopy(video.pixels, current_frame.pixels);
-    current_frame.updatePixels();
-    if (using_bg_loop1) {
-      bg_loop2.add(current_frame);
-    } else {
-      bg_loop1.add(current_frame);
-    }
-  }
+  record_bg_loop();
   PImage current_diff = createImage(video.width, video.height, RGB);
   current_diff.loadPixels();
   for (int pixel = 0; pixel < VIDEO_PIXEL_COUNT; pixel++) {
@@ -79,6 +70,30 @@ void save_current_difference() {
   if (video_diffs.size() > remembered_frames) {
     video_diffs.remove(0);
   }
+}
+
+PImage create_laggy_diff() {
+  for (int i = 0; i < video_diffs.size(); i++) {
+    PImage diff = (PImage)video_diffs.get(i);
+    diff.loadPixels();
+  }
+  PImage laggy_diff = createImage(video.width, video.height, RGB);
+  laggy_diff.loadPixels();
+  for (int pixel = 0; pixel < VIDEO_PIXEL_COUNT; pixel++) {
+    color pixel_color = #000000;
+    int diff_frame = video_diffs.size() - 1;
+    while (pixel_color == #000000 && diff_frame > 0) {
+      PImage diff = (PImage)video_diffs.get(diff_frame);
+      color diff_color = diff.pixels[pixel];
+      if (brightness(diff_color) > brightness_threshold) {
+        pixel_color = diff_color;
+      }
+      diff_frame--;
+    }
+    laggy_diff.pixels[pixel] = pixel_color;
+  }
+  laggy_diff.updatePixels();
+  return laggy_diff;
 }
 
 void draw_explosion(PImage img) {
@@ -116,44 +131,41 @@ void draw_explosion(PImage img) {
   }
 }
 
+void record_bg_loop() {
+  if (record_loop && frame_count % update_rate == 0) {
+    PImage current_frame = createImage(video.width, video.height, RGB);
+    arraycopy(video.pixels, current_frame.pixels);
+    current_frame.updatePixels();
+    if (using_bg_loop1) {
+      bg_loop2.add(current_frame);
+    } else {
+      bg_loop1.add(current_frame);
+    }
+  }
+}
+
+void update_bg_frame() {
+  if (get_current_bg_loop().size() == 0) {
+    arraycopy(video.pixels, background_pixels);
+  } else {
+    int loop_length = get_current_bg_loop().size();
+    int loop_idx = abs((frame_count % (2 * loop_length - 1)) - (loop_length - 1));
+    
+    PImage bg_frame = (PImage)(get_current_bg_loop().get(loop_idx));
+    arraycopy(bg_frame.pixels, background_pixels);
+  }
+}
+
 void draw() {
   if (video.available()) {
     save_current_difference();
     
-    for (int i = 0; i < video_diffs.size(); i++) {
-      PImage diff = (PImage)video_diffs.get(i);
-      diff.loadPixels();
-    }
-    PImage laggy_diff = createImage(video.width, video.height, RGB);
-    laggy_diff.loadPixels();
-    for (int pixel = 0; pixel < VIDEO_PIXEL_COUNT; pixel++) {
-      color pixel_color = #000000;
-      int diff_frame = video_diffs.size() - 1;
-      while (pixel_color == #000000 && diff_frame > 0) {
-        PImage diff = (PImage)video_diffs.get(diff_frame);
-        color diff_color = diff.pixels[pixel];
-        if (brightness(diff_color) > brightness_threshold) {
-          pixel_color = diff_color;
-        }
-        diff_frame--;
-      }
-      laggy_diff.pixels[pixel] = pixel_color;
-    }
-    laggy_diff.updatePixels();
+    PImage laggy_diff = create_laggy_diff(); 
     
-    draw_explosion(laggy_diff);
+    draw_explosion(create_laggy_diff());
 
-    if (frame_count % update_rate == 0 && !record_loop) {
-      if (get_current_bg_loop().size() == 0) {
-        arraycopy(video.pixels, background_pixels);
-      } else {
-        int loop_length = get_current_bg_loop().size();
-        int loop_idx = abs((frame_count % (2 * loop_length - 1)) - (loop_length - 1));
-        
-        PImage bg_frame = (PImage)(get_current_bg_loop().get(loop_idx));
-        arraycopy(bg_frame.pixels, background_pixels);
-      }
-    }
+    update_bg_frame();
+    
     frame_count++;
   }
 }
