@@ -7,31 +7,6 @@ import ddf.minim.effects.*;
 
 import processing.video.*;
 
-// Video stuff
-int pixel_count;
-int[] background_pixels;
-ArrayList camera_list =  new ArrayList();
-int camera_count = 2;
-Capture video;
-int frame_count;
-int update_rate = 1;
-int remembered_frames = 2;
-ArrayList video_diffs = new ArrayList();
-float brightness_threshold = 10.0;
-
-boolean record_loop = false;
-boolean using_bg_loop1 = false;
-ArrayList bg_loop1 = new ArrayList();
-ArrayList bg_loop2 = new ArrayList();
-
-
-// Sound stuff
-Minim minim;
-AudioInput sound_in;
-AudioPlayer file_player;
-float loudness_boost = 5.0;
-float eased_loudness = 0.0;
-float easing = 0.5;
 
 void setup() {
   size(1280, 960, P3D);
@@ -44,8 +19,8 @@ void setup() {
   
   video = (Capture)camera_list.get(0);
   
-  pixel_count = video.width * video.height;
-  background_pixels = new int[pixel_count];
+  VIDEO_PIXEL_COUNT = video.width * video.height;
+  background_pixels = new int[VIDEO_PIXEL_COUNT];
   frame_count = 0;
   
   minim = new Minim(this);
@@ -77,7 +52,7 @@ void save_current_difference() {
   }
   PImage current_diff = createImage(video.width, video.height, RGB);
   current_diff.loadPixels();
-  for (int pixel = 0; pixel < pixel_count; pixel++) {
+  for (int pixel = 0; pixel < VIDEO_PIXEL_COUNT; pixel++) {
     color pixel_color = video.pixels[pixel];
     
     color bg_pixel_color = background_pixels[pixel];
@@ -151,7 +126,7 @@ void draw() {
     }
     PImage laggy_diff = createImage(video.width, video.height, RGB);
     laggy_diff.loadPixels();
-    for (int pixel = 0; pixel < pixel_count; pixel++) {
+    for (int pixel = 0; pixel < VIDEO_PIXEL_COUNT; pixel++) {
       color pixel_color = #000000;
       int diff_frame = video_diffs.size() - 1;
       while (pixel_color == #000000 && diff_frame > 0) {
