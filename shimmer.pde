@@ -98,37 +98,56 @@ PImage create_laggy_diff() {
 
 void draw_explosion(PImage img) {
   background(0);
-  int cellsize = 6;
+  int cellsize = 5;
   int columns = img.width / cellsize;
   int rows = img.height / cellsize;
-  int x_border = (width - img.width) / 2;
-  int y_border = (height - img.height) / 2;
   
   float current_loudness = loudness_boost * sound_in.mix.level();
   float loudness_delta = current_loudness - eased_loudness;
   eased_loudness += loudness_delta * easing;
-  int rotation_speed = 20;
-  float rotation = PI/3.0 * sin( float((frame_count % rotation_speed) - (rotation_speed / 2)) / float(rotation_speed)); 
-  for (int col = 0; col < columns; col++) {
-    for (int row = 0; row < rows; row++) {
-      int x = col*cellsize;
-      int y = row*cellsize;
-      int loc = x + (y * img.width);
-      color c = img.pixels[loc];
-      
-      float z = 5.0 * current_loudness * brightness(img.pixels[loc]) - 20.0;
-      pushMatrix();
-      //rotateY(rotation);
-      translate(x + 300, y + 200, z + 200);
-      //rotateY(-rotation);
-      fill(c, 204);
-      noStroke();
-      //rectMode(CENTER);
-      float z_scaling = 1000.0;
-      ellipse(0, 0, cellsize + round(z / z_scaling), cellsize + round(z / z_scaling));
-      popMatrix();
-    } 
-  }
+  float x_rotation = x_rotation_limit * sin(float(frame_count) * x_rotation_factor);
+  float y_rotation = y_rotation_limit * sin(float(frame_count) * y_rotation_factor);
+
+  pushMatrix();
+    translate((img.width / 2) + 300, (img.height / 2) + 200, 200);
+    rotateY(y_rotation);
+    rotateX(x_rotation);
+    pushMatrix();
+      translate(-img.width / 2, -img.height / 2, 0);
+      for (int col = 0; col < columns; col++) {
+        for (int row = 0; row < rows; row++) {
+          int x = col*cellsize;
+          int y = row*cellsize;
+          int loc = x + (y * img.width);
+          color c = img.pixels[loc];
+          float z = 5.0 * current_loudness * brightness(img.pixels[loc]);
+          pushMatrix();
+            translate(x, y, z);
+            pushMatrix();
+              rotateY(-y_rotation);
+              rotateX(-x_rotation);
+              fill(c, 255);
+              noStroke();
+              //rectMode(CENTER);
+              float circle_size = float(cellsize) * max(1.0, z * z_scaling);
+              ellipse(0, 0, circle_size, circle_size);
+            popMatrix();  
+          popMatrix();
+        } 
+      }
+    popMatrix();
+  popMatrix();
+  
+  pushMatrix();
+  translate(300, 200, 0);
+  pushMatrix();
+  translate(0, 0, 200);
+  fill(color(0, 255, 0), 204);
+  noStroke();
+  ellipse(0, 0, cellsize, cellsize);
+  popMatrix();
+  popMatrix();
+  
 }
 
 void record_bg_loop() {
