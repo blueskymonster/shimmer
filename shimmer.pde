@@ -29,7 +29,7 @@ ArrayList bg_loop2 = new ArrayList();
 Minim minim;
 AudioInput sound_in;
 AudioPlayer file_player;
-float loudness_boost = 20.0;
+float loudness_boost = 5.0;
 float eased_loudness = 0.0;
 float easing = 0.5;
 
