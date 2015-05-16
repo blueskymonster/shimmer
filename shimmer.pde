@@ -7,9 +7,16 @@ import ddf.minim.effects.*;
 
 import processing.video.*;
 
+import themidibus.*;
+
 
 void setup() {
   size(1280, 960, P3D);
+  
+  MidiBus.list();
+  
+  midi_bus = new MidiBus(this, 0, -1);
+  midi_bus.addMidiListener(kaoss_pad);
   
   for (int cam = 0; cam < camera_count; cam++) {
     Capture camera = new Capture(this, 640, 480, "/dev/video" + str(cam));
@@ -107,7 +114,7 @@ void draw_explosion(PImage img) {
   float y_rotation = y_rotation_limit * sin(float(frameCount) * y_rotation_factor);
 
   pushMatrix();
-    translate((img.width / 2) + 300, (img.height / 2) + 200, 200);
+    translate((img.width / 2) + x_offset, (img.height / 2) + y_offset, z_offset);
     rotateY(y_rotation);
     rotateX(x_rotation);
     pushMatrix();
@@ -166,8 +173,13 @@ void update_bg_frame() {
   }
 }
 
+void update_var_buffers() {
+  cellsize = cellsize_buffer;
+}
+
 void draw() {
   if (video.available()) {
+    update_var_buffers();
     save_current_difference();  
     draw_explosion(create_laggy_diff());
     update_bg_frame();
