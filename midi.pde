@@ -1,19 +1,22 @@
+import themidibus.*;
+
 class KaossPadMidiListener implements SimpleMidiListener {
-  private Boolean debug_mode;
   private Boolean hold_held;
+  private MidiBus kaoss_pad_bus;
   
-  public KaossPadMidiListener(Boolean debug_mode) {
-    this.debug_mode = debug_mode;
+  public KaossPadMidiListener() {
+    String[] available_inputs = MidiBus.availableInputs();
+    for (int i = 0; i < available_inputs.length; i++) {
+      if (available_inputs[i].startsWith("KP3 [")) {
+        this.kaoss_pad_bus = new MidiBus(this, i, -1);
+        break;
+      }
+    }
+    this.kaoss_pad_bus.addMidiListener(this);
     this.hold_held = false;
   }
   
-  void controllerChange(int channel, int number, int value) {
-    if (debug_mode) {
-      println("CONTROLLER CHANGE");
-      println(channel);
-      println(number);
-      println(value);
-    }
+  public void controllerChange(int channel, int number, int value) {
     switch (number) {
       case 49: changeCamera(number - 49, value); break;
       case 50: changeCamera(number - 49, value); break;
@@ -32,22 +35,11 @@ class KaossPadMidiListener implements SimpleMidiListener {
     }
   }
   
-  void noteOff(int channel, int pitch, int velocity) {
-    if (debug_mode) {
-      println("NOTE OFF");
-      println(channel);
-      println(pitch);
-      println(velocity);
-    }
+  public void noteOff(int channel, int pitch, int velocity) {
+
   }
   
-  void noteOn(int channel, int pitch, int velocity) {
-    if (debug_mode) {
-      println("NOTE ON");
-      println(channel);
-      println(pitch);
-      println(velocity);
-    }
+  public void noteOn(int channel, int pitch, int velocity) {
     switch (pitch) {
       case 36: pressA(); break;
       case 37: pressB(); break;
