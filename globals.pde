@@ -2,7 +2,7 @@
 int VIDEO_PIXEL_COUNT;  // Number of pixels in video feeds. Do not alter manually.
 int[] background_pixels;  // Current frame being used to subtract from video feed
 ArrayList camera_list =  new ArrayList();  // The connected camera objects
-int camera_count = 1;  // How many cameras to attempt to connect to
+int camera_count = 2;  // How many cameras to attempt to connect to
 Capture video;  // Pointer to the camera object currently being read from
 int frame_count;  // How many frames have been rendered since the beginning  of runtime.
 int update_rate = 1;  // modulo of frames to record into bg_loops

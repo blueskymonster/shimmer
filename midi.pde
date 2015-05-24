@@ -3,6 +3,13 @@ import themidibus.*;
 class KaossPadMidiListener implements SimpleMidiListener {
   private Boolean hold_held;
   private MidiBus kaoss_pad_bus;
+  private boolean pad_x_stale;
+  private boolean pad_y_stale;
+  private int pad_down_x;
+  private int pad_down_y;
+  private Boolean pad_touched;
+  private int screen_base_x;
+  private int screen_base_y;
   
   public KaossPadMidiListener() {
     String[] available_inputs = MidiBus.availableInputs();
@@ -14,6 +21,13 @@ class KaossPadMidiListener implements SimpleMidiListener {
     }
     this.kaoss_pad_bus.addMidiListener(this);
     this.hold_held = false;
+    this.pad_x_stale = true;
+    this.pad_y_stale = true;
+    this.pad_down_x = 0;
+    this.pad_down_y = 0;
+    this.pad_touched = false;
+    this.screen_base_x = 0;
+    this.screen_base_y = 0;
   }
   
   public void controllerChange(int channel, int number, int value) {
@@ -28,6 +42,7 @@ class KaossPadMidiListener implements SimpleMidiListener {
       case 56: changeCamera(number - 49, value); break;
       case 70: touchPadX(value); break;
       case 71: touchPadY(value); break;
+      case 92: touchPadStatus(value); break;
       case 93: changeLevel(value); break;
       case 94: changeFXDepth(value); break;
       case 95: pressHold(value); break;
@@ -68,11 +83,35 @@ class KaossPadMidiListener implements SimpleMidiListener {
   }
   
   void touchPadX(int value) {
-    x_offset = expand(value, 100, 1000);
+    if (pad_touched) {
+      if (pad_x_stale) {
+        pad_x_stale = false;
+        pad_down_x = value;
+      }
+      x_offset = screen_base_x + expand(value - pad_down_x, 0, 1000);
+    }
   }
   
   void touchPadY(int value) {
-    y_offset = expand(value, 1000, 100);
+    if (pad_touched) {
+      if (pad_y_stale) {
+        pad_y_stale = false;
+        pad_down_y = value;
+      }
+      y_offset = screen_base_y - expand(value - pad_down_y, 0, 1000);
+    }
+  }
+  
+  void touchPadStatus(int value) {
+    Boolean status = value == 127;
+    if (!status) {
+      pad_x_stale = true;
+      pad_y_stale = true;
+    } else {
+      screen_base_x = x_offset;
+      screen_base_y = y_offset;
+    }
+    pad_touched = status;
   }
   
   void changeLevel(int value) {

@@ -9,7 +9,6 @@ import processing.video.*;
 
 
 void setup() {
-  // size(1920, 1080, P3D);
   size(displayWidth, displayHeight, P3D);
   frame.setResizable(true);
   
