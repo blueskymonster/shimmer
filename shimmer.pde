@@ -11,11 +11,13 @@ import themidibus.*;
 
 
 void setup() {
-  size(1280, 960, P3D);
+  // size(1920, 1080, P3D);
+  size(displayWidth, displayHeight, P3D);
+  frame.setResizable(true);
   
   MidiBus.list();
   
-  midi_bus = new MidiBus(this, 0, -1);
+  midi_bus = new MidiBus(this, 1, -1);
   midi_bus.addMidiListener(kaoss_pad);
   
   for (int cam = 0; cam < camera_count; cam++) {

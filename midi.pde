@@ -76,15 +76,19 @@ class KaossPadMidiListener implements SimpleMidiListener {
   }
   
   void touchPadX(int value) {
-    x_offset = expand(value, 100, 600);
+    x_offset = expand(value, 100, 1000);
   }
   
   void touchPadY(int value) {
-    y_offset = expand(value, 600, 100);
+    y_offset = expand(value, 1000, 100);
   }
   
   void changeLevel(int value) {
-    loudness_boost = expand(value, 1.0, 20.0);
+    if (hold_held) {
+      z_offset = expand(value, 100, 800);
+    } else {
+      loudness_boost = expand(value, 1.0, 20.0);
+    }
   }
   
   void changeFXDepth(int value) {
