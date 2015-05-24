@@ -118,7 +118,7 @@ class KaossPadMidiListener implements SimpleMidiListener {
     if (hold_held) {
       z_offset = expand(value, 100, 800);
     } else {
-      loudness_boost = expand(value, 1.0, 20.0);
+      loudness_boost = expand(value, 0.0, 20.0);
     }
   }
   
@@ -135,7 +135,7 @@ class KaossPadMidiListener implements SimpleMidiListener {
   }
   
   void pressC() {
-    
+    cell_shape = CellShape.ISOCELES;
   }
   
   void pressD() {

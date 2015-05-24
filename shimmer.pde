@@ -108,9 +108,15 @@ void draw_explosion(PImage img) {
   float y_rotation = y_rotation_limit * sin(float(frameCount) * y_rotation_factor);
 
   pushMatrix();
+    noStroke();
+    //noSmooth();
     translate((img.width / 2) + x_offset, (img.height / 2) + y_offset, z_offset);
-    rotateY(y_rotation);
-    rotateX(x_rotation);
+    if (y_rotation != 0.0) {
+      rotateY(y_rotation);
+    }
+    if (x_rotation != 0.0) {
+      rotateX(x_rotation);
+    }
     pushMatrix();
       translate(-img.width / 2, -img.height / 2, 0);
       for (int col = 0; col < columns; col++) {
@@ -124,15 +130,20 @@ void draw_explosion(PImage img) {
           pushMatrix();
             translate(x, y, z);
             pushMatrix();
-              rotateY(-y_rotation);
-              rotateX(-x_rotation);
+              if (y_rotation != 0.0) {
+                rotateY(-y_rotation);
+              }
+              if (x_rotation != 0.0) {
+                rotateX(-x_rotation);
+              }
               fill(c, 255);
-              noStroke();
               if (cell_shape == CellShape.CIRCLE) {
                 ellipse(0, 0, shape_size, shape_size);
               } else if (cell_shape == CellShape.RECTANGLE) {
                 rectMode(CENTER);
                 rect(0, 0, shape_size, shape_size);
+              } else if (cell_shape == CellShape.ISOCELES) {
+                triangle(0, 0, -float(cellsize) / 2.0, cellsize, float(cellsize) / 2.0, cellsize);
               }
             popMatrix();  
           popMatrix();

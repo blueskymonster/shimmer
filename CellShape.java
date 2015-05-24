@@ -1,4 +1,5 @@
 enum CellShape {
   CIRCLE, 
-  RECTANGLE
+  RECTANGLE,
+  ISOCELES
 }
