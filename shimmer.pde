@@ -11,9 +11,10 @@ import processing.video.*;
 void setup() {
   size(displayWidth, displayHeight, P3D);
   frame.setResizable(true);
+  String[] cameras = Capture.list();
   
-  for (int cam = 0; cam < camera_count; cam++) {
-    Capture camera = new Capture(this, 640, 480, "/dev/video" + str(cam));
+  for (int cam = 0; cam < cameras.length; cam++) {
+    Capture camera = new Capture(this, 640, 480, cameras[cam]);
     camera.start();
     camera_list.add(camera);
   }
@@ -191,4 +192,3 @@ void draw() {
     bufferRecording();
   }
 }
-

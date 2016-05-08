@@ -20,13 +20,20 @@ void recordButtonPressed() {
 }
 
 void changeCellShape() {
-  if (cell_shape == CellShape.CIRCLE) {
+  if (cell_shape == CellShape.ISOCELES) {
     cellsize = max(1, cellsize - 2);
     cell_shape = CellShape.RECTANGLE;
-  } else {
+  } else if (cell_shape == CellShape.RECTANGLE) {
     cellsize += 2;
     cell_shape = CellShape.CIRCLE;
+  } else {
+    cellsize = max(2, cellsize - 2);
+    cell_shape = CellShape.ISOCELES;
   }
+}
+
+void changeCellSize(int change) {
+  cellsize_buffer = max(1, cellsize_buffer + change);
 }
 
 void handleCodedKeys() {
@@ -57,6 +64,10 @@ void keyPressed() {
     case 'r': toggleRecording();
               break;
     case 's': changeCellShape();
+              break;
+    case 'q': changeCellSize(1);
+              break;
+    case 'a': changeCellSize(-1);
               break;
     case CODED: handleCodedKeys();
                 break;
